@@ -10,6 +10,7 @@ class ApiForm extends Entity{
     $this->api_form = [
        'id' => [ 'type' => 'int', 'pk' => true ],
        'endpoint' => [ 'type' => 'string', 'length' => 50 ],
+       'method' => [ 'type' => 'string', 'length' => 10 ],
        'field' => [ 'type' => 'string', 'length' => 75 ],
        'id_type' => [ 'type' => 'int', 'foreign' => array('id', new ApiFieldType())],
        'sample' => [ 'type' => 'string', 'length' => 350 ],

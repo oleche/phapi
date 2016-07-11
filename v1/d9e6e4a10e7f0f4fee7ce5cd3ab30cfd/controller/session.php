@@ -53,7 +53,7 @@ class SESSION extends GCConfig
   }
 
 	private function validate_login($params=array()){
-		if ($this->validate_fields($params, 'login')){
+		if ($this->validate_fields($params, 'login', 'POST')){
 			$result = array();
 			$pass = md5($params['password']);
 			if ($this->user->fetch_id(array('idusuario' => $params['username']),null,true," password = '$pass' AND enabled is TRUE ")){

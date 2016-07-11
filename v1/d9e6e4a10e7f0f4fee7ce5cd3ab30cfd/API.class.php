@@ -1,6 +1,7 @@
 <?php
 
-define('MY_DOC_ROOT', $_SERVER['DOCUMENT_ROOT'] . "/v1/b0ad9a487724fd81a9aec2412c8f3d2f");
+define('MY_DOC_ROOT', $_SERVER['DOCUMENT_ROOT'] . "/phapi" . "/v1/d9e6e4a10e7f0f4fee7ce5cd3ab30cfd");
+//define('MY_DOC_ROOT', $_SERVER['DOCUMENT_ROOT'] . "/v1/d9e6e4a10e7f0f4fee7ce5cd3ab30cfd");
 
 abstract class API
 {
@@ -114,43 +115,77 @@ abstract class API
 		return $response;
 	}
 
-    private function _response($data, $status = 200) {
-      header("HTTP/1.1 " . $status . " " . $this->_requestStatus($status));
-		  header("Access-Control-Allow-Origin: *");
-		  header("Access-Control-Allow-Headers: *");
-      header("Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS");
-
-  		foreach ($this->headers as $header) {
-  			header($header);
-  		}
-
-      return json_encode($data,JSON_UNESCAPED_SLASHES);
+  protected function doRegulaCall(){
+    switch ($this->method) {
+      case 'POST':
+        $this->action->doPost($this->args, $this->verb);
+        $this->response_code = $this->action->response['code'];
+        return $this->action->response;
+        break;
+      case 'GET':
+        $this->action->doGet($this->args, $this->verb);
+        $this->add_header($this->action->pagination_link);
+        $this->response_code = $this->action->response['code'];
+        return $this->action->response;
+        break;
+      case 'PUT':
+        parse_str($this->file,$_POST);
+        $this->action->doPut($this->args, $this->verb, $this->file);
+        $this->response_code = $this->action->response['code'];
+        return $this->action->response;
+        break;
+      case 'DELETE':
+        $this->action->doDelete($this->args, $this->verb);
+        $this->response_code = $this->action->response['code'];
+        return $this->action->response;
+        break;
+      case 'OPTIONS':
+        exit(0);
+        break;
+      default:
+        $this->response_code = 405;
+        return "Invalid Method";
+        break;
     }
+  }
 
-    private function _cleanInputs($data) {
-        $clean_input = Array();
-        if (is_array($data)) {
-            foreach ($data as $k => $v) {
-                $clean_input[$k] = $this->_cleanInputs($v);
-            }
-        } else {
-            $clean_input = trim(strip_tags($data));
-        }
-        return $clean_input;
-    }
+  private function _response($data, $status = 200) {
+    header("HTTP/1.1 " . $status . " " . $this->_requestStatus($status));
+	  header("Access-Control-Allow-Origin: *");
+	  header("Access-Control-Allow-Headers: *");
+    header("Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS");
 
-    private function _requestStatus($code) {
-        $status = array(
-            200 => 'OK',
-            202 => 'OK',
-            401 => 'Unauthorized',
-            404 => 'Not Found',
-            405 => 'Method Not Allowed',
-            422 => 'Unprocessable Entity',
-            500 => 'Internal Server Error',
-        );
-        return ($status[$code])?$status[$code]:$status[500];
+		foreach ($this->headers as $header) {
+			header($header);
+		}
+
+    return json_encode($data,JSON_UNESCAPED_SLASHES);
+  }
+
+  private function _cleanInputs($data) {
+    $clean_input = Array();
+    if (is_array($data)) {
+      foreach ($data as $k => $v) {
+        $clean_input[$k] = $this->_cleanInputs($v);
+      }
+    } else {
+      $clean_input = trim(strip_tags($data));
     }
+    return $clean_input;
+  }
+
+  private function _requestStatus($code) {
+    $status = array(
+        200 => 'OK',
+        202 => 'OK',
+        401 => 'Unauthorized',
+        404 => 'Not Found',
+        405 => 'Method Not Allowed',
+        422 => 'Unprocessable Entity',
+        500 => 'Internal Server Error',
+    );
+    return ($status[$code])?$status[$code]:$status[500];
+  }
 }
 
 ?>

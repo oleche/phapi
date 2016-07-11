@@ -4,10 +4,19 @@
 
 	include MY_DOC_ROOT . '/model/api/form.php';
 
-	abstract class GCConfig{
+	interface ApiMethods{
+		public function doPOST();
+		public function doGET();
+		public function doPUT();
+		public function doDELETE();
+	}
+
+	abstract class GCConfig
+	{
 		protected $ipp;
 		protected $fbappid;
 		protected $fbsecret;
+		protected $app_secret;
 
 		protected $request;
 
@@ -25,6 +34,8 @@
 		//internalDB
 		private $api_form;
 
+		protected $file_url;
+
     public function __construct(){
 
 			$config = parse_ini_file("config.ini");
@@ -34,6 +45,7 @@
 			$this->fbappid = $config['fbapp'];
 			$this->fbsecret = $config['fbsecret'];
 	    $this->ipp = $config['ipp'];
+			$this->file_url = $config['file_url'];
 
 			$this->api_form = new ApiForm();
 		}
@@ -41,11 +53,6 @@
 		public function setRequest($request){
 			$this->request = $request;
 		}
-
-		public abstract function doPOST();
-		public abstract function doGET();
-		public abstract function doPUT();
-		public abstract function doDELETE();
 
 		//Private Methods
 		private function filter_gets($ignored = array()){
@@ -110,7 +117,17 @@
 			$class->set_ipp($this->per_page);
     }
 
-		protected function validate_fields($fields, $endpoint){
+		protected function validate_upload($file){
+			if (is_null($file)){
+				$this->response['message'][] = "File unavailable";
+				$this->response['code'] = 422;
+				return false;
+			}else{
+				return true;
+			}
+		}
+
+		protected function validate_fields($fields, $endpoint, $method){
 			$available = array();
 			$rvalue = true;
 			$this->response['message'] = array();
@@ -123,14 +140,13 @@
 						$message['field'] = $k;
 						$message['message'] = 'Is empty';
 						$this->response['message'][] = $message;
-						$this->response['code'] = 2;
-						$this->response['http_code'] = 422;
+						$this->response['code'] = 422;
 					}
 				}
 			}
-			$q_list = $this->api_form->fetch(" endpoint LIKE '$endpoint' ");
+			$q_list = $this->api_form->fetch(" endpoint LIKE '$endpoint' AND method LIKE '$method' ");
 			if (count($q_list) > 0){
-	            $i = 0;
+	      $i = 0;
 				foreach ($q_list as $q_item) {
 					$i++;
 					if (in_array($q_item->columns['field'], $available)){
@@ -142,8 +158,7 @@
 							$message['message'] = 'Do not match validation type: '.$q_item->columns['id_type']['name'];
 							$message['format'] = $q_item->columns['id_type']['regex'];
 							$this->response['message'][] = $message;
-							$this->response['code'] = 2;
-							$this->response['http_code'] = 422;
+							$this->response['code'] = 422;
 						}
 					}else{
 						if ($q_item->columns['required']){
@@ -152,16 +167,14 @@
 							$message['field'] = $q_item->columns['field'];
 							$message['message'] = 'Is required';
 							$this->response['message'][] = $message;
-							$this->response['code'] = 2;
-							$this->response['http_code'] = 422;
+							$this->response['code'] = 422;
 						}
 					}
 				}
 			}else{
 				$this->response['request'] = $_POST;
 				$this->response['message'] = 'Fields definition error';
-				$this->response['code'] = 2;
-				$this->response['http_code'] = 500;
+				$this->response['code'] = 500;
 				return false;
 			}
 			return $rvalue;

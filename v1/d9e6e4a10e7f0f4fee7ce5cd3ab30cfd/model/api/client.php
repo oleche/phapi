@@ -10,7 +10,7 @@ class ApiClient extends Entity{
         'client_id' => [ 'type' => 'string', 'length' => 32, 'pk' => true ],
         'client_secret' => [ 'type' => 'string', 'length' => 32 ],
         'email' => [ 'type' => 'string' ],
-        'user_id' => [ 'type' => 'string', 'length' => 15, 'foreign' => array('username', new User()) ],
+        'user_id' => [ 'type' => 'string', 'length' => 70, 'foreign' => array('username', new User()) ],
         'created_at' => [ 'type' => 'datetime' ],
         'updated_at' => [ 'type' => 'datetime' ],
         'enabled' => [ 'type' => 'boolean' ],

@@ -7,7 +7,7 @@ class User extends Entity{
 
   public function __construct(){
     $this->user = [
-        'username' => [ 'type' => 'string', 'length' => 15, 'unique' => true, 'pk' => true ],
+        'username' => [ 'type' => 'string', 'length' => 70, 'unique' => true, 'pk' => true ],
         'name' => [ 'type' => 'string', 'length' => 45, 'unique' => true ],
         'lastname' => [ 'type' => 'string', 'length' => 45, 'unique' => true ],
         'email' => [ 'type' => 'string', 'length' => 70, 'unique' => true ],

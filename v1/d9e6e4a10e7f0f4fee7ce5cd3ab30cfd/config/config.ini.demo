@@ -1,0 +1,25 @@
+[database_configuration]
+server = localhost
+db_user = root
+db_pass = 'r00t'
+database = demoapi
+
+[security_infomation]
+app_secret = 'PHPAPI_API_SUPER_PLUS_PLUS'
+
+[database_configuration]
+fbapp = 111111111111111
+fbsecret = 11111111111111111111111111111111
+
+[display_configuration]
+ipp = 25
+
+[site_constants]
+initial_points = 25
+
+[assets]
+file_url='http://demo.geekcow.com/'
+
+[beanstalk]
+beanstalk_host='127.0.0.1'
+beanstalk_tube='flux'

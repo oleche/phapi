@@ -40,7 +40,7 @@ class DBManager extends DataBaseManager{
 		$this->ipp = $ipp;
 		$this->recursive = true;
 		foreach ($db_columns as $columnname)
-			$this->columns[$columnname] = "NULL";
+			$this->columns[$columnname] = null;
 		if (!is_null($foreigns)){
 			foreach ($foreigns as $relation => $v) {
 				$this->foreign_keys[] = $relation;
@@ -117,6 +117,7 @@ class DBManager extends DataBaseManager{
 			$result = $this->db->Execute($sql);
 
 			while ($row = mysqli_fetch_assoc($result)){
+				$row = array_map('utf8_encode', $row);
         if (!$custom){
 			    $rowobj = new DBManager($this->connection, $this->db_name, $this->columns_defs, $this->the_key);
   				foreach($this->columns_defs as $definitions){
@@ -253,6 +254,7 @@ class DBManager extends DataBaseManager{
 			$result = $this->db->Execute($sql);
 
 			while ($row = mysqli_fetch_assoc($result)){
+				$row = array_map('utf8_encode', $row);
 				$rowobj = new DBManager($this->connection, $this->db_name, $this->columns_defs, $this->the_key);
 				foreach($this->columns_defs as $definitions){
 					if (in_array($definitions, $fobjs)){
@@ -379,6 +381,7 @@ class DBManager extends DataBaseManager{
 				$result = $this->db->Execute($sql);
 
 				if ($row = mysqli_fetch_assoc($result)){
+					$row = array_map('utf8_encode', $row);
 					/*foreach($this->columns_defs as $definitions){
 						$this->columns[$definitions] = $row[$definitions];
 					}*/
@@ -640,8 +643,9 @@ class DBManager extends DataBaseManager{
 			$this->BeginTransaction();
 
 			$query = $this->assemble_query();
+			$columns = $this->assemble_insert_columns();
 
-			$sql = "INSERT INTO ".$this->db_name." VALUES ( ".$query." ) ";
+			$sql = "INSERT INTO ".$this->db_name." (".$columns.") VALUES ( ".$query." ) ";
 
 			$this->db->Execute($sql);
 			$result = mysqli_insert_id($this->db->link);
@@ -654,6 +658,20 @@ class DBManager extends DataBaseManager{
 			return FALSE;
 		}
 		return $result;
+	}
+
+	private function assemble_insert_columns(){
+		$query = "";
+		$count = 0;
+
+		foreach ($this->columns as $key => $value) {
+			if ($count > 0)
+				$query .= ', ';
+			$query .= $key;
+			$count++;
+		}
+
+		return $query;
 	}
 
 	private function assemble_query($is_insert = false){

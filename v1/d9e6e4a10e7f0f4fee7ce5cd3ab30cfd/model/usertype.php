@@ -5,7 +5,8 @@ class UserType extends Entity{
   private $user_type = [
       'id' => [ 'type' => 'int', 'unique' => true, 'pk' => true ],
       'name' => [ 'type' => 'string', 'length' => 32, 'unique' => true ],
-      'priority' => [ 'type' => 'int', 'unique' => true ]
+      'priority' => [ 'type' => 'int', 'unique' => true ],
+      'scope' => [ 'type' => 'string', 'length' => 45, 'unique' => true ]
   ];
 
   public function __construct(){
