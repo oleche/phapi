@@ -8,7 +8,7 @@ class ApiUserAsoc extends Entity{
 
   public function __construct(){
     $this->api_user_asoc = [
-      'username' => [ 'type' => 'string', 'length' => 15, 'pk' => true, 'foreign' => array('username', new User()) ],
+      'username' => [ 'type' => 'string', 'length' => 70, 'pk' => true, 'foreign' => array('username', new User()) ],
       'client_id' => [ 'type' => 'string', 'length' => 32, 'pk' => true, 'foreign' => array('client_id', new ApiClient()) ]
     ];
     parent::__construct($this->api_user_asoc, get_class($this));
